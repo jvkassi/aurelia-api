@@ -1,8 +1,6 @@
+import { buildQueryString, join } from 'aurelia-path';
+import { IHttpClient } from '@aurelia/fetch-client';
 import extend from 'extend';
-import {buildQueryString,join} from 'aurelia-path';
-import {HttpClient,HttpClientConfiguration} from 'aurelia-fetch-client';
-import {Container,resolver} from 'aurelia-dependency-injection';
-
 
 /**
  * Rest class. A simple rest client to fetch resources
@@ -15,7 +13,7 @@ export class Rest {
    */
   defaults: {} = {
     headers: {
-      'Accept'      : 'application/json',
+      'Accept': 'application/json',
       'Content-Type': 'application/json'
     }
   };
@@ -23,10 +21,10 @@ export class Rest {
   /**
    * The client for the rest adapter
    *
-   * @param {HttpClient} client The fetch client
+   * @param {IHttpClient} client The fetch client
    *
    */
-  client: HttpClient;
+  client: IHttpClient;
 
   /**
    * The name of the endpoint it was registered under
@@ -53,8 +51,8 @@ export class Rest {
    *                                                   query strings from criteria objects, false
    *                                                   otherwise. Default is false.
    */
-  constructor(httpClient: HttpClient, endpoint: string, useTraditionalUriTemplates?: boolean) {
-    this.client   = httpClient;
+  constructor(httpClient: IHttpClient, endpoint: string, useTraditionalUriTemplates?: boolean) {
+    this.client = httpClient;
     this.endpoint = endpoint;
     this.useTraditionalUriTemplates = !!useTraditionalUriTemplates;
   }
@@ -70,15 +68,15 @@ export class Rest {
    *
    * @return {Promise<*>|Promise<Error>} Server response as Object
    */
-  request(method: string, path: string, body?: {}, options?: {}, responseOutput?: { response: Response}): Promise<any|Error> {
-    let requestOptions = extend(true, {headers: {}}, this.defaults || {}, options || {}, {method, body});
-    let contentType    = requestOptions.headers['Content-Type'] || requestOptions.headers['content-type'];
+  request(method: string, path: string, body?: {}, options?: {}, responseOutput?: { response: Response }): Promise<any | Error> {
+    let requestOptions = extend(true, { headers: {} }, this.defaults || {}, options || {}, { method, body });
+    let contentType = requestOptions.headers['Content-Type'] || requestOptions.headers['content-type'];
 
     // if body is object, stringify to json or urlencoded depending on content-type
     if (typeof body === 'object' && body !== null && contentType) {
       requestOptions.body = (/^application\/(.+\+)?json/).test(contentType.toLowerCase())
-                          ? JSON.stringify(body)
-                          : buildQueryString(body);
+        ? JSON.stringify(body)
+        : buildQueryString(body);
     }
 
     return this.client.fetch(path, requestOptions).then((response: Response) => {
@@ -104,7 +102,7 @@ export class Rest {
    *
    * @return {Promise<*>|Promise<Error>} Server response as Object
    */
-  find(resource: string, idOrCriteria?: string|number|{}, options?: {}, responseOutput?: { response: Response}): Promise<any|Error> {
+  find(resource: string, idOrCriteria?: string | number | {}, options?: {}, responseOutput?: { response: Response }): Promise<any | Error> {
     return this.request('GET', getRequestPath(resource, this.useTraditionalUriTemplates, idOrCriteria), undefined, options, responseOutput);
   }
 
@@ -119,7 +117,7 @@ export class Rest {
    *
    * @return {Promise<*>|Promise<Error>} Server response as Object
    */
-  findOne(resource: string, id: string|number, criteria?: {}, options?: {}, responseOutput?: { response: Response}): Promise<any|Error> {
+  findOne(resource: string, id: string | number, criteria?: {}, options?: {}, responseOutput?: { response: Response }): Promise<any | Error> {
     return this.request('GET', getRequestPath(resource, this.useTraditionalUriTemplates, id, criteria), undefined, options, responseOutput);
   }
 
@@ -133,7 +131,7 @@ export class Rest {
    *
    * @return {Promise<*>|Promise<Error>} Server response as Object
    */
-  post(resource: string, body?: {}, options?: {}, responseOutput?: { response: Response}): Promise<any|Error> {
+  post(resource: string, body?: {}, options?: {}, responseOutput?: { response: Response }): Promise<any | Error> {
     return this.request('POST', resource, body, options, responseOutput);
   }
 
@@ -148,7 +146,7 @@ export class Rest {
    *
    * @return {Promise<*>|Promise<Error>} Server response as Object
    */
-  update(resource: string, idOrCriteria?: string|number|{}, body?: {}, options?: {}, responseOutput?: { response: Response}): Promise<any|Error> {
+  update(resource: string, idOrCriteria?: string | number | {}, body?: {}, options?: {}, responseOutput?: { response: Response }): Promise<any | Error> {
     return this.request('PUT', getRequestPath(resource, this.useTraditionalUriTemplates, idOrCriteria), body, options, responseOutput);
   }
 
@@ -164,7 +162,7 @@ export class Rest {
    *
    * @return {Promise<*>|Promise<Error>} Server response as Object
    */
-  updateOne(resource: string, id: string|number, criteria?: {}, body?: {}, options?: {}, responseOutput?: { response: Response}): Promise<any|Error> {
+  updateOne(resource: string, id: string | number, criteria?: {}, body?: {}, options?: {}, responseOutput?: { response: Response }): Promise<any | Error> {
     return this.request('PUT', getRequestPath(resource, this.useTraditionalUriTemplates, id, criteria), body, options, responseOutput);
   }
 
@@ -179,7 +177,7 @@ export class Rest {
    *
    * @return {Promise<*>|Promise<Error>} Server response as Object
    */
-  patch(resource: string, idOrCriteria?: string|number|{}, body?: {}, options?: {}, responseOutput?: { response: Response}): Promise<any|Error> {
+  patch(resource: string, idOrCriteria?: string | number | {}, body?: {}, options?: {}, responseOutput?: { response: Response }): Promise<any | Error> {
     return this.request('PATCH', getRequestPath(resource, this.useTraditionalUriTemplates, idOrCriteria), body, options, responseOutput);
   }
 
@@ -195,7 +193,7 @@ export class Rest {
    *
    * @return {Promise<*>|Promise<Error>} Server response as Object
    */
-  patchOne(resource: string, id: string|number, criteria?: {}, body?: {}, options?: {}, responseOutput?: { response: Response}): Promise<any|Error> {
+  patchOne(resource: string, id: string | number, criteria?: {}, body?: {}, options?: {}, responseOutput?: { response: Response }): Promise<any | Error> {
     return this.request('PATCH', getRequestPath(resource, this.useTraditionalUriTemplates, id, criteria), body, options, responseOutput);
   }
 
@@ -209,7 +207,7 @@ export class Rest {
    *
    * @return {Promise<*>|Promise<Error>} Server response as Object
    */
-  destroy(resource: string, idOrCriteria?: string|number|{}, options?: {}, responseOutput?: { response: Response}): Promise<any|Error> {
+  destroy(resource: string, idOrCriteria?: string | number | {}, options?: {}, responseOutput?: { response: Response }): Promise<any | Error> {
     return this.request('DELETE', getRequestPath(resource, this.useTraditionalUriTemplates, idOrCriteria), undefined, options, responseOutput);
   }
 
@@ -224,7 +222,7 @@ export class Rest {
    *
    * @return {Promise<*>|Promise<Error>} Server response as Object
    */
-  destroyOne(resource: string, id: string|number, criteria?: {}, options?: {}, responseOutput?: { response: Response}): Promise<any|Error> {
+  destroyOne(resource: string, id: string | number, criteria?: {}, options?: {}, responseOutput?: { response: Response }): Promise<any | Error> {
     return this.request('DELETE', getRequestPath(resource, this.useTraditionalUriTemplates, id, criteria), undefined, options, responseOutput);
   }
 
@@ -238,7 +236,7 @@ export class Rest {
    *
    * @return {Promise<*>} Server response as Object
    */
-  create(resource: string, body?: {}, options?: {}, responseOutput?: { response: Response}): Promise<any|Error> {
+  create(resource: string, body?: {}, options?: {}, responseOutput?: { response: Response }): Promise<any | Error> {
     return this.post(resource, body, options, responseOutput);
   }
 }
@@ -252,7 +250,7 @@ export class Rest {
  * @param {{}} [criteria]
  * @returns {string}
  */
-function getRequestPath(resource: string, traditional: boolean, idOrCriteria?: string|number|{}, criteria?: {}) {
+function getRequestPath(resource: string, traditional: boolean, idOrCriteria?: string | number | {}, criteria?: {}) {
   let hasSlash = resource.slice(-1) === '/';
 
   if (typeof idOrCriteria === 'string' || typeof idOrCriteria === 'number') {
@@ -268,251 +266,4 @@ function getRequestPath(resource: string, traditional: boolean, idOrCriteria?: s
   }
 
   return resource;
-}
-
-/**
- * Represents the options to use when constructing a `Rest` instance.
- */
-interface RestOptions {
-  /**
-   * `true` to use the traditional URI template standard (RFC6570) when building
-   * query strings from criteria objects, `false` otherwise. Default is `false`.
-   * NOTE: maps to `useTraditionalUriTemplates` parameter on `Rest` constructor.
-   *
-   * @type {boolean}
-   */
-  useTraditionalUriTemplates?: boolean;
-}
-
-/**
- * Config class. Configures and stores endpoints
- */
-export class Config {
-  /**
-   * Collection of configures endpoints
-   *
-   * @param {{}} Key: endpoint name; value: Rest client
-   */
-  endpoints: {[key: string]: Rest} = {};
-
-  /**
-   * Current default endpoint if set
-   *
-   * @param {Rest} defaultEndpoint The Rest client
-   */
-  defaultEndpoint: Rest;
-
-   /**
-    * Current default baseUrl if set
-    *
-    * @param {string} defaultBaseUrl The Rest client
-    */
-  defaultBaseUrl: string;
-
-  /**
-   * Register a new endpoint.
-   *
-   * @param {string}          name              The name of the new endpoint.
-   * @param {Function|string} [configureMethod] Endpoint url or configure method for client.configure().
-   * @param {{}}              [defaults]        New defaults for the HttpClient
-   * @param {RestOptions}     [restOptions]     Options to pass when constructing the Rest instance.
-   *
-   * @see http://aurelia.io/docs.html#/aurelia/fetch-client/latest/doc/api/class/HttpClientConfiguration
-   * @return {Config} this Fluent interface
-   * @chainable
-   */
-  registerEndpoint(name: string, configureMethod?: string|Function, defaults?: {}, restOptions?: RestOptions): Config {
-    let newClient = new HttpClient();
-    let useTraditionalUriTemplates;
-
-    if (restOptions !== undefined) {
-      useTraditionalUriTemplates = restOptions.useTraditionalUriTemplates;
-    }
-    this.endpoints[name] = new Rest(newClient, name, useTraditionalUriTemplates);
-
-    // set custom defaults to Rest
-    if (defaults !== undefined) {
-      this.endpoints[name].defaults = defaults;
-    }
-
-    // Manual configure of client.
-    if (typeof configureMethod === 'function') {
-      newClient.configure(
-          (newClientConfig: HttpClientConfiguration) => {
-            return configureMethod(
-                newClientConfig.withDefaults(this.endpoints[name].defaults)
-            );
-          }
-      );
-
-      // transfer user defaults from http-client to endpoint
-      this.endpoints[name].defaults = newClient.defaults;
-
-      return this;
-    }
-
-    // Base url is self / current host.
-    if (typeof configureMethod !== 'string' && !this.defaultBaseUrl) {
-      return this;
-    }
-
-    if (this.defaultBaseUrl && typeof configureMethod !== 'string' && typeof configureMethod !== 'function') {
-      newClient.configure(configure => {
-        configure.withBaseUrl(this.defaultBaseUrl);
-      });
-
-      return this;
-    }
-
-    // Base url is string. Configure.
-    newClient.configure(configure => {
-      configure.withBaseUrl(configureMethod);
-    });
-
-    return this;
-  }
-
-  /**
-   * Get a previously registered endpoint. Returns null when not found.
-   *
-   * @param {string} [name] The endpoint name. Returns default endpoint when not set.
-   *
-   * @return {Rest|null}
-   */
-  getEndpoint(name?: string): Rest {
-    if (!name) {
-      return this.defaultEndpoint || null;
-    }
-
-    return this.endpoints[name] || null;
-  }
-
-  /**
-   * Check if an endpoint has been registered.
-   *
-   * @param {string} name The endpoint name
-   *
-   * @return {boolean}
-   */
-  endpointExists(name: string): boolean {
-    return !!this.endpoints[name];
-  }
-
-  /**
-   * Set a previously registered endpoint as the default.
-   *
-   * @param {string} name The endpoint name
-   *
-   * @return {Config} this Fluent interface
-   * @chainable
-   */
-  setDefaultEndpoint(name: string): Config {
-    this.defaultEndpoint = this.getEndpoint(name);
-
-    return this;
-  }
-
-  /**
-   * Set a base url for all endpoints
-   *
-   * @param {string} baseUrl The url for endpoints to append
-   *
-   * @return {Config} this Fluent interface
-   * @chainable
-   */
-  setDefaultBaseUrl(baseUrl: string): Config {
-    this.defaultBaseUrl = baseUrl;
-
-    return this;
-  }
-
-  /**
-   * Configure with an object
-   *
-   * @param {{}} config The configuration object
-   *
-   * @return {Config} this Fluent interface
-   * @chainable
-   */
-  configure(config: {defaultEndpoint: string, defaultBaseUrl: string, endpoints: Array<{name: string, endpoint: string, config: {}, default: boolean}>}): Config {
-    if (config.defaultBaseUrl) {
-      this.defaultBaseUrl = config.defaultBaseUrl;
-    }
-
-    config.endpoints.forEach(endpoint => {
-      this.registerEndpoint(endpoint.name, endpoint.endpoint, endpoint.config);
-
-      if (endpoint.default) {
-        this.setDefaultEndpoint(endpoint.name);
-      }
-    });
-
-    if (config.defaultEndpoint) {
-      this.setDefaultEndpoint(config.defaultEndpoint);
-    }
-
-    return this;
-  }
-}
-
-/**
- * Plugin configure
- *
- * @export
- * @param {{ container: Container}} frameworkConfig
- * @param {({defaultEndpoint: string, defaultBaseUrl: string, endpoints: Array<{name: string, endpoint: string, config: RequestInit, default: boolean}>} | function(config: Config): void)} configOrConfigure
- */
-export function configure(
-  frameworkConfig: {container: Container},
-  configOrConfigure: {defaultEndpoint: string, defaultBaseUrl: string, endpoints: Array<{name: string, endpoint: string, config: RequestInit, default: boolean}>} | ((config: Config) => void)
-) {
-  let config = frameworkConfig.container.get(Config);
-
-  if (typeof configOrConfigure === 'function') {
-    configOrConfigure(config);
-
-    return;
-  }
-
-  config.configure(configOrConfigure);
-}
-
-/**
- * Endpoint class. A resolver for endpoints which allows injection of the corresponding Rest client into a class
- */
-@resolver()
-export class Endpoint {
-
-  _key: string;
-
-  /**
-   * Construct the resolver with the specified key.
-   *
-   * @param {string} key
-   */
-  constructor(key: string) {
-    this._key = key;
-  }
-
-  /**
-   * Resolve for key.
-   *
-   * @param {Container} container
-   *
-   * @return {Rest}
-   */
-  get(container: Container): Rest {
-    return container.get(Config).getEndpoint(this._key);
-  }
-
-  /**
-   * Get a new resolver for `key`.
-   *
-   * @param {string} [key]  The endpoint name
-   *
-   * @return {Endpoint}  Resolves to the Rest client for this endpoint
-   */
-  static of(key?: string): Rest {
-    return new Endpoint(key);
-  }
 }
