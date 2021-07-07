@@ -1,7 +1,6 @@
 import { HttpClient, HttpClientConfiguration } from '@aurelia/fetch-client';
-import { Rest } from './rest';
+import { IRest,Rest } from './rest';
 import { DI } from 'aurelia';
-// import { Config } from '../types/config'
 
 /**
  * Represents the options to use when constructing a `Rest` instance.
@@ -20,28 +19,113 @@ interface RestOptions {
 // const container = DI.createInterface();
 export const IConfig = DI.createInterface<IConfig>('IConfig', x => x.singleton(Config));
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface IConfig extends Config { }
-// export interface IConfig extends Config {}
+export interface IConfig {
+    /**
+ * Collection of configures endpoints
+ *
+ * @param {{}} Key: endpoint name; value: Rest client
+ */
+    endpoints: {
+        [key: string]: IRest;
+    };
+    /**
+     * Current default endpoint if set
+     *
+     * @param {IRest} defaultEndpoint The Rest client
+     */
+    defaultEndpoint: IRest;
+    /**
+     * Current default baseUrl if set
+     *
+     * @param {string} defaultBaseUrl The Rest client
+     */
+    defaultBaseUrl: string;
+    /**
+     * Register a new endpoint.
+     *
+     * @param {string}          name              The name of the new endpoint.
+     * @param {Function|string} [configureMethod] Endpoint url or configure method for client.configure().
+     * @param {{}}              [defaults]        New defaults for the HttpClient
+     * @param {RestOptions}     [restOptions]     Options to pass when constructing the Rest instance.
+     *
+     * @see http://aurelia.io/docs.html#/aurelia/fetch-client/latest/doc/api/class/HttpClientConfiguration
+     * @return {Config} this Fluent interface
+     * @chainable
+     */
+    registerEndpoint(name: string, configureMethod?: string | Function, defaults?: {}, restOptions?: RestOptions): Config;
+    /**
+     * Get a previously registered endpoint. Returns null when not found.
+     *
+     * @param {string} [name] The endpoint name. Returns default endpoint when not set.
+     *
+     * @return {Rest|null}
+     */
+    getEndpoint(name?: string): IRest;
+    /**
+     * Check if an endpoint has been registered.
+     *
+     * @param {string} name The endpoint name
+     *
+     * @return {boolean}
+     */
+    endpointExists(name: string): boolean;
+    /**
+     * Set a previously registered endpoint as the default.
+     *
+     * @param {string} name The endpoint name
+     *
+     * @return {Config} this Fluent interface
+     * @chainable
+     */
+    setDefaultEndpoint(name: string): Config;
+    /**
+     * Set a base url for all endpoints
+     *
+     * @param {string} baseUrl The url for endpoints to append
+     *
+     * @return {Config} this Fluent interface
+     * @chainable
+     */
+    setDefaultBaseUrl(baseUrl: string): Config;
+    /**
+     * Configure with an object
+     *
+     * @param {{}} config The configuration object
+     *
+     * @return {Config} this Fluent interface
+     * @chainable
+     */
+    configure(config: {
+        defaultEndpoint: string;
+        defaultBaseUrl: string;
+        endpoints: Array<{
+            name: string;
+            endpoint: string;
+            config: {};
+            default: boolean;
+        }>;
+    }): Config;
 
-// export Config
+}
+
 /**
  * Config class. Configures and stores endpoints
  */
-export class Config {
+export class Config implements IConfig {
 
     /**
      * Collection of configures endpoints
      *
      * @param {{}} Key: endpoint name; value: Rest client
      */
-    endpoints: { [key: string]: Rest } = {};
+    endpoints: { [key: string]: IRest } = {};
 
     /**
      * Current default endpoint if set
      *
-     * @param {Rest} defaultEndpoint The Rest client
+     * @param {IRest} defaultEndpoint The Rest client
      */
-    defaultEndpoint: Rest;
+    defaultEndpoint: IRest;
 
     /**
      * Current default baseUrl if set
@@ -120,7 +204,7 @@ export class Config {
      *
      * @return {Rest|null}
      */
-    getEndpoint(name?: string): Rest {
+    getEndpoint(name?: string): IRest {
         if (!name) {
             return this.defaultEndpoint || null;
         }

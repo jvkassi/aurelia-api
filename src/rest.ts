@@ -1,11 +1,195 @@
 import { buildQueryString, join } from 'aurelia-path';
 import { IHttpClient } from '@aurelia/fetch-client';
-import extend from 'extend';
+// import extend from 'extend';
+import { DI } from 'aurelia';
+
+export const IRest = DI.createInterface<IRest>('IRest', x => x.singleton(Rest));
+
+export interface IRest {
+  /**
+   * The defaults to apply to any request
+   *
+   * @param {{}} defaults The default fetch request options
+   */
+  defaults: {};
+  /**
+   * The client for the rest adapter
+   *
+   * @param {IHttpClient} client The fetch client
+   *
+   */
+  client: IHttpClient;
+  /**
+   * The name of the endpoint it was registered under
+   *
+   * @param {string} endpoint The endpoint name
+   */
+  endpoint: string;
+  /**
+   * true to use the traditional URI template standard (RFC6570) when building
+   * query strings from criteria objects, false otherwise. Default is false.
+   *
+   * @param {boolean} useTraditionalUriTemplates The flag that enables RFC6570 URI templates.
+   */
+  useTraditionalUriTemplates: boolean;
+  /**
+   * Make a request to the server.
+   *
+   * @param {string}          method     The fetch method
+   * @param {string}          path       Path to the resource
+   * @param {{}}              [body]     The body to send if applicable
+   * @param {{}}              [options]  Fetch request options overwrites
+   * @param {{ response: Response}}              [responseOutput]  reference output for Response object
+   *
+   * @return {Promise<*>|Promise<Error>} Server response as Object
+   */
+  request(method: string, path: string, body?: {}, options?: {}, responseOutput?: {
+    response: Response;
+  }): Promise<any | Error>;
+  /**
+   * Find a resource.
+   *
+   * @param {string}                    resource  Resource to find in
+   * @param {string|number|{}}          idOrCriteria  Object for where clause, string / number for id.
+   * @param {{}}                        [options] Extra request options.
+   * @param {{ response: Response}}              [responseOutput]  reference output for Response object
+   *
+   * @return {Promise<*>|Promise<Error>} Server response as Object
+   */
+  find(resource: string, idOrCriteria?: string | number | {}, options?: {}, responseOutput?: {
+    response: Response;
+  }): Promise<any | Error>;
+  /**
+   * Find a resource.
+   *
+   * @param {string}           resource    Resource to find in
+   * @param {string|number}    id          String / number for id to be added to the path.
+   * @param {{}}               [criteria]  Object for where clause
+   * @param {{}}               [options]   Extra request options.
+   * @param {{ response: Response}}              [responseOutput]  reference output for Response object
+   *
+   * @return {Promise<*>|Promise<Error>} Server response as Object
+   */
+  findOne(resource: string, id: string | number, criteria?: {}, options?: {}, responseOutput?: {
+    response: Response;
+  }): Promise<any | Error>;
+  /**
+   * Create a new instance for resource.
+   *
+   * @param {string}           resource  Resource to create
+   * @param {{}}               [body]    The data to post (as Object)
+   * @param {{}}               [options] Extra request options.
+   * @param {{ response: Response}}              [responseOutput]  reference output for Response object
+   *
+   * @return {Promise<*>|Promise<Error>} Server response as Object
+   */
+  post(resource: string, body?: {}, options?: {}, responseOutput?: {
+    response: Response;
+  }): Promise<any | Error>;
+  /**
+   * Update a resource.
+   *
+   * @param {string}           resource  Resource to update
+   * @param {string|number|{}} idOrCriteria  Object for where clause, string / number for id.
+   * @param {{}}               [body]    New data for provided idOrCriteria.
+   * @param {{}}               [options] Extra request options.
+   * @param {{ response: Response}}              [responseOutput]  reference output for Response object
+   *
+   * @return {Promise<*>|Promise<Error>} Server response as Object
+   */
+  update(resource: string, idOrCriteria?: string | number | {}, body?: {}, options?: {}, responseOutput?: {
+    response: Response;
+  }): Promise<any | Error>;
+  /**
+   * Update a resource.
+   *
+   * @param {string}           resource   Resource to update
+   * @param {string|number}    id         String / number for id to be added to the path.
+   * @param {{}}               [criteria] Object for where clause
+   * @param {{}}               [body]     New data for provided criteria.
+   * @param {{}}               [options]  Extra request options.
+   * @param {{ response: Response}}              [responseOutput]  reference output for Response object
+   *
+   * @return {Promise<*>|Promise<Error>} Server response as Object
+   */
+  updateOne(resource: string, id: string | number, criteria?: {}, body?: {}, options?: {}, responseOutput?: {
+    response: Response;
+  }): Promise<any | Error>;
+  /**
+   * Patch a resource.
+  *
+   * @param {string}           resource   Resource to patch
+   * @param {string|number|{}} [idOrCriteria] Object for where clause, string / number for id.
+   * @param {{}}               [body]     Data to patch for provided idOrCriteria.
+   * @param {{}}               [options]  Extra request options.
+   * @param {{ response: Response}}              [responseOutput]  reference output for Response object
+   *
+   * @return {Promise<*>|Promise<Error>} Server response as Object
+   */
+  patch(resource: string, idOrCriteria?: string | number | {}, body?: {}, options?: {}, responseOutput?: {
+    response: Response;
+  }): Promise<any | Error>;
+  /**
+   * Patch a resource.
+   *
+   * @param {string}           resource   Resource to patch
+   * @param {string|number}    id         String / number for id to be added to the path.
+   * @param {{}}               [criteria] Object for where clause
+   * @param {{}}               [body]     Data to patch for provided criteria.
+   * @param {{}}               [options]  Extra request options.
+   * @param {{ response: Response}}              [responseOutput]  reference output for Response object
+   *
+   * @return {Promise<*>|Promise<Error>} Server response as Object
+   */
+  patchOne(resource: string, id: string | number, criteria?: {}, body?: {}, options?: {}, responseOutput?: {
+    response: Response;
+  }): Promise<any | Error>;
+  /**
+   * Delete a resource.
+   *
+   * @param {string}           resource   The resource to delete
+   * @param {string|number|{}} [idOrCriteria] Object for where clause, string / number for id.
+   * @param {{}}               [options]  Extra request options.
+   * @param {{ response: Response}}              [responseOutput]  reference output for Response object
+   *
+   * @return {Promise<*>|Promise<Error>} Server response as Object
+   */
+  destroy(resource: string, idOrCriteria?: string | number | {}, options?: {}, responseOutput?: {
+    response: Response;
+  }): Promise<any | Error>;
+  /**
+   * Delete a resource.
+   *
+   * @param {string}           resource   The resource to delete
+   * @param {string|number}    id         String / number for id to be added to the path.
+   * @param {{}}               [criteria] Object for where clause
+   * @param {{}}               [options]  Extra request options.
+   * @param {{ response: Response}}              [responseOutput]  reference output for Response object
+   *
+   * @return {Promise<*>|Promise<Error>} Server response as Object
+   */
+  destroyOne(resource: string, id: string | number, criteria?: {}, options?: {}, responseOutput?: {
+    response: Response;
+  }): Promise<any | Error>;
+  /**
+   * Create a new instance for resource.
+   *
+   * @param {string}           resource  The resource to create
+   * @param {{}}               [body]    The data to post (as Object)
+   * @param {{}}               [options] Extra request options.
+   * @param {{ response: Response}}              [responseOutput]  reference output for Response object
+   *
+   * @return {Promise<*>} Server response as Object
+   */
+  create(resource: string, body?: {}, options?: {}, responseOutput?: {
+    response: Response;
+  }): Promise<any | Error>;
+}
 
 /**
  * Rest class. A simple rest client to fetch resources
  */
-export class Rest {
+export class Rest implements IRest {
   /**
    * The defaults to apply to any request
    *
@@ -69,8 +253,8 @@ export class Rest {
    * @return {Promise<*>|Promise<Error>} Server response as Object
    */
   request(method: string, path: string, body?: {}, options?: {}, responseOutput?: { response: Response }): Promise<any | Error> {
-    let requestOptions = extend(true, { headers: {} }, this.defaults || {}, options || {}, { method, body });
-    let contentType = requestOptions.headers['Content-Type'] || requestOptions.headers['content-type'];
+    const requestOptions = Object.assign({}, { headers: {} }, this.defaults || {}, options || {}, { method, body });
+    const contentType = requestOptions.headers['Content-Type'] || requestOptions.headers['content-type'];
 
     // if body is object, stringify to json or urlencoded depending on content-type
     if (typeof body === 'object' && body !== null && contentType) {
@@ -251,7 +435,7 @@ export class Rest {
  * @returns {string}
  */
 function getRequestPath(resource: string, traditional: boolean, idOrCriteria?: string | number | {}, criteria?: {}) {
-  let hasSlash = resource.slice(-1) === '/';
+  const hasSlash = resource.slice(-1) === '/';
 
   if (typeof idOrCriteria === 'string' || typeof idOrCriteria === 'number') {
     resource = `${join(resource, String(idOrCriteria))}${hasSlash ? '/' : ''}`;
